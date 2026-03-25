@@ -1,0 +1,247 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.shell{background:#0f1117;border-radius:16px;overflow:hidden;width:100%;max-width:860px;margin:0 auto}
+.vcont{position:relative;width:100%;aspect-ratio:16/9;background:#000;cursor:pointer;display:flex;align-items:center;justify-content:center}
+video{width:100%;height:100%;display:block;object-fit:contain}
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.4);pointer-events:none}
+.ph svg{width:52px;height:52px;opacity:.3}
+.ph p{font-size:14px}
+.ph small{font-size:12px;opacity:.6}
+.play-ol{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);transition:opacity .2s;pointer-events:none}
+.play-ol.h{opacity:0}
+.play-circle{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center}
+.play-circle svg{width:26px;height:26px;fill:#0f1117;margin-left:4px}
+.cbar{background:linear-gradient(to bottom,#1a1d28,#0f1117);padding:10px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;align-items:center;gap:10px}
+.tlabel{font-size:12px;color:rgba(255,255,255,.45);font-weight:500;white-space:nowrap;min-width:82px;text-align:right}
+.pwrap{flex:1;height:20px;display:flex;align-items:center;cursor:pointer;position:relative}
+.ptrack{width:100%;height:4px;background:rgba(255,255,255,.18);border-radius:4px;position:relative;overflow:visible}
+.pfill{height:100%;background:#2563eb;border-radius:4px;width:0%;transition:width .1s linear;position:relative}
+.pfill::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:11px;height:11px;background:#fff;border-radius:50%;box-shadow:0 0 0 3px #2563eb;opacity:0;transition:opacity .2s}
+.pwrap:hover .pfill::after{opacity:1}
+.mkr{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;border:2px solid #0f1117;z-index:2;pointer-events:none;transition:background .3s}
+.mkr.p{background:#f59e0b}.mkr.d{background:#059669}
+.brow{display:flex;align-items:center;gap:8px}
+.cb{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);display:grid;place-items:center;width:36px;height:36px;border-radius:8px;transition:color .15s,background .15s;flex-shrink:0}
+.cb:hover{color:#fff;background:rgba(255,255,255,.1)}
+.cb svg{width:20px;height:20px}
+.cb.lg{width:44px;height:44px}.cb.lg svg{width:26px;height:26px}
+.vg{display:flex;align-items:center;gap:6px}
+input[type=range].vs{-webkit-appearance:none;appearance:none;width:70px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);outline:none;cursor:pointer}
+input[type=range].vs::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#fff;cursor:pointer}
+.sp{flex:1}
+.srcbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.srcbar label{font-size:12px;color:rgba(255,255,255,.45);white-space:nowrap}
+.urlinput{flex:1;min-width:150px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:7px 11px;font-size:13px;color:#fff;outline:none;font-family:var(--font-sans)}
+.urlinput:focus{border-color:#2563eb}
+.urlinput::placeholder{color:rgba(255,255,255,.3)}
+.btnload{background:#2563eb;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:var(--font-sans);transition:background .15s}
+.btnload:hover{background:#1d4ed8}
+.flabel{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:7px 13px;border-radius:7px;font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;white-space:nowrap;transition:border-color .2s}
+.flabel:hover{border-color:#2563eb;color:#93c5fd}
+.flabel svg{width:13px;height:13px}
+#fi{display:none}
+
+.qol{position:absolute;inset:0;background:rgba(8,10,18,.87);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.qol.v{opacity:1;pointer-events:all}
+.qcard{background:#fff;border-radius:18px;padding:26px 28px 24px;max-width:520px;width:100%;transform:translateY(16px) scale(.97);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.qol.v .qcard{transform:translateY(0) scale(1)}
+.qbadge{display:inline-flex;align-items:center;gap:5px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:12px}
+.qbadge svg{width:11px;height:11px}
+.qq{font-size:16px;font-weight:500;line-height:1.45;color:#0f1117;margin-bottom:16px}
+.ol{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.ob{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1.5px solid #e2e5f0;border-radius:9px;cursor:pointer;background:#f7f8fc;text-align:left;font-size:14px;color:#3d4152;font-family:var(--font-sans);transition:border-color .15s,background .15s;width:100%;line-height:1.4}
+.ob .ol2{width:22px;height:22px;border-radius:5px;background:#e2e5f0;color:#3d4152;font-size:12px;font-weight:500;display:grid;place-items:center;flex-shrink:0;transition:background .15s,color .15s}
+.ob:hover:not(:disabled){border-color:#2563eb;background:#dbeafe;color:#0f1117}
+.ob:hover:not(:disabled) .ol2{background:#2563eb;color:#fff}
+.ob.sel{border-color:#2563eb;background:#dbeafe;color:#0f1117}
+.ob.sel .ol2{background:#2563eb;color:#fff}
+.ob.cor{border-color:#059669!important;background:#d1fae5!important}
+.ob.cor .ol2{background:#059669!important;color:#fff!important}
+.ob.wrg{border-color:#dc2626!important;background:#fee2e2!important}
+.ob.wrg .ol2{background:#dc2626!important;color:#fff!important}
+.ob:disabled{cursor:default}
+.fb{display:none;align-items:center;gap:8px;padding:10px 13px;border-radius:9px;font-size:13px;font-weight:500;margin-bottom:16px}
+.fb.sh{display:flex}
+.fb.ok{background:#d1fae5;color:#047857}
+.fb.ng{background:#fee2e2;color:#b91c1c}
+.fb svg{width:16px;height:16px;flex-shrink:0}
+.qa{display:flex;justify-content:flex-end}
+.bcnf{background:#2563eb;color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);transition:background .15s;display:flex;align-items:center;gap:7px}
+.bcnf:hover{background:#1d4ed8}
+.bcnf:disabled{background:#e2e5f0;color:#8a8fa8;cursor:not-allowed}
+.bcnf svg{width:15px;height:15px}
+
+.cpl{position:absolute;inset:0;background:rgba(8,10,18,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:60;padding:24px;text-align:center}
+.cpl.sh{display:flex}
+.cpico{width:64px;height:64px;border-radius:50%;background:#059669;display:grid;place-items:center;margin-bottom:16px}
+.cpico svg{width:32px;height:32px;fill:#fff}
+.cpl h2{font-size:22px;color:#fff;margin-bottom:6px;font-weight:500}
+.cpl p{color:rgba(255,255,255,.55);font-size:14px;margin-bottom:20px}
+.snum{background:rgba(255,255,255,.1);border-radius:12px;padding:14px 28px;margin-bottom:20px}
+.snum .sn{font-size:42px;font-weight:500;color:#fff;line-height:1}
+.snum .ss{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.brst{background:#fff;color:#0f1117;border:none;padding:10px 24px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);transition:opacity .15s}
+.brst:hover{opacity:.85}
+
+.srow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;width:100%;max-width:860px;margin-left:auto;margin-right:auto}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary)}
+.sc strong{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.sc svg{width:14px;height:14px;opacity:.45}
+
+@media(max-width:500px){
+  .qq{font-size:14px}
+  .qcard{padding:18px 16px 16px}
+  input[type=range].vs{width:50px}
+  .urlinput{min-width:120px}
+}
+</style>
+
+<div class="shell" id="shell">
+  <div class="vcont" id="vc" onclick="tplay()">
+    <video id="vid" preload="metadata"></video>
+    <div class="ph" id="ph">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <p>Sin video cargado</p>
+      <small>Usa los controles de abajo para cargar un video</small>
+    </div>
+    <div class="play-ol" id="pol">
+      <div class="play-circle"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg></div>
+    </div>
+    <div class="qol" id="qol">
+      <div class="qcard">
+        <div class="qbadge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 110 20A10 10 0 0112 2zm0 15a1 1 0 100 2 1 1 0 000-2zm0-10a3 3 0 00-2.8 4.1l.1.2.6 1.2V14h4.2v-1.5l.6-1.2A3 3 0 0012 7z"/></svg>Punto de evaluación</div>
+        <div class="qq" id="qq"></div>
+        <div class="ol" id="ol"></div>
+        <div class="fb" id="fb"><svg id="fbi" viewBox="0 0 24 24" fill="currentColor"></svg><span id="fbt"></span></div>
+        <div class="qa"><button class="bcnf" id="bcnf" onclick="hconf()" disabled><span id="bcnt">Confirmar respuesta</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>
+      </div>
+    </div>
+    <div class="cpl" id="cpl">
+      <div class="cpico"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+      <h2>¡Módulo completado!</h2>
+      <p>Has terminado el video de onboarding e integración.</p>
+      <div class="snum"><div class="sn" id="fsco">0/3</div><div class="ss">respuestas correctas</div></div>
+      <button class="brst" onclick="rst()">↺ Reiniciar módulo</button>
+    </div>
+  </div>
+  <div class="cbar">
+    <div class="prow">
+      <span class="tlabel" id="tl">0:00 / 0:00</span>
+      <div class="pwrap" id="pw" onclick="seek(event)">
+        <div class="ptrack" id="ptk"><div class="pfill" id="pf"></div></div>
+      </div>
+    </div>
+    <div class="brow">
+      <button class="cb lg" id="ppb" onclick="tplay()"><svg id="ppi" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="vg">
+        <button class="cb" onclick="tmute()"><svg id="vi" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+        <input type="range" class="vs" id="vsl" min="0" max="1" step="0.05" value="1" oninput="svol(this.value)">
+      </div>
+      <div class="sp"></div>
+      <button class="cb" onclick="tfs()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
+    </div>
+  </div>
+  <div class="srcbar">
+    <label>URL / ruta:</label>
+    <input type="text" class="urlinput" id="ui" placeholder="https://... o /videos/onboarding.mp4">
+    <button class="btnload" onclick="lurl()">Cargar</button>
+    <label class="flabel" for="fi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM13 4l5 5h-5V4z"/></svg>Elegir archivo</label>
+    <input type="file" id="fi" accept="video/*" onchange="lfile(this)">
+  </div>
+</div>
+
+<div class="srow">
+  <div class="sc"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>Respondidas: <strong id="sa">0</strong></div>
+  <div class="sc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Correctas: <strong id="sc2" style="color:#059669">0</strong></div>
+  <div class="sc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18L18 6M6 6l12 12"/></svg>Incorrectas: <strong id="sw" style="color:#dc2626">0</strong></div>
+</div>
+
+<script>
+const QS=[
+  {time:30,q:"¿Cuál es el objetivo principal del proceso de onboarding en una empresa?",opts:["Solo explicar el reglamento interno","Integrar al colaborador y facilitar su adaptación al equipo y la cultura","Revisar y firmar el contrato laboral","Evaluar el desempeño desde el primer día"],ok:1},
+  {time:70,q:"¿Quién es responsable de acompañar al nuevo colaborador durante el proceso de integración?",opts:["Únicamente el área de Recursos Humanos","Solo el director general","El equipo, el líder directo y Recursos Humanos en conjunto","El nuevo colaborador de forma independiente"],ok:2},
+  {time:120,q:"¿Cuánto tiempo suele durar el proceso formal de onboarding en la mayoría de las organizaciones?",opts:["Un solo día, durante la bienvenida inicial","Entre 30 y 90 días, con seguimiento continuo","Una semana máximo","No tiene duración definida, es inmediato"],ok:1}
+];
+const vid=document.getElementById('vid');
+let cps=QS.map((q,i)=>({...q,triggered:false,idx:i}));
+let cqi=null,sel=null,cfm=false,nA=0,nC=0,nW=0;
+const fmt=s=>{if(!s||isNaN(s))return'0:00';const m=Math.floor(s/60),sc=String(Math.floor(s%60)).padStart(2,'0');return`${m}:${sc}`};
+
+function tplay(){if(!vid.src)return;vid.paused?(vid.play(),ppi(false),pol(true)):(vid.pause(),ppi(true),pol(false))}
+function ppi(show){document.getElementById('ppi').innerHTML=show?'<path d="M8 5v14l11-7z"/>':'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';}
+function pol(h){const e=document.getElementById('pol');h?e.classList.add('h'):e.classList.remove('h');}
+vid.addEventListener('play',()=>{ppi(false);pol(true);});
+vid.addEventListener('pause',()=>{ppi(true);if(!document.getElementById('qol').classList.contains('v'))pol(false);});
+
+vid.addEventListener('timeupdate',()=>{
+  const t=vid.currentTime,d=vid.duration||0;
+  document.getElementById('pf').style.width=(d?(t/d*100):0)+'%';
+  document.getElementById('tl').textContent=fmt(t)+' / '+fmt(d);
+  cps.forEach(cp=>{if(!cp.triggered&&t>=cp.time){cp.triggered=true;vid.pause();showQ(cp.idx);}});
+});
+vid.addEventListener('loadedmetadata',()=>mkrs());
+vid.addEventListener('ended',()=>showCpl());
+
+function seek(e){if(!vid.duration)return;const r=document.getElementById('pw').getBoundingClientRect();vid.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*vid.duration;}
+function svol(v){vid.volume=v;uvi(v);}
+function tmute(){vid.muted=!vid.muted;const v=vid.muted?0:vid.volume;uvi(v);document.getElementById('vsl').value=v;}
+function uvi(v){document.getElementById('vi').innerHTML=v==0?'<path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>':'<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';}
+function tfs(){const s=document.getElementById('shell');!document.fullscreenElement?(s.requestFullscreen?.()??s.webkitRequestFullscreen?.()):(document.exitFullscreen?.()??document.webkitExitFullscreen?.());}
+
+function lurl(){const u=document.getElementById('ui').value.trim();if(!u)return;vid.src=u;vid.load();document.getElementById('ph').style.display='none';rcps();}
+function lfile(inp){const f=inp.files[0];if(!f)return;vid.src=URL.createObjectURL(f);vid.load();document.getElementById('ph').style.display='none';rcps();}
+function rcps(){cps=QS.map((q,i)=>({...q,triggered:false,idx:i}));nA=0;nC=0;nW=0;ust();document.getElementById('cpl').classList.remove('sh');}
+
+function mkrs(){
+  const tk=document.getElementById('ptk');
+  tk.querySelectorAll('.mkr').forEach(m=>m.remove());
+  const d=vid.duration;if(!d)return;
+  cps.forEach((cp,i)=>{const m=document.createElement('div');m.className='mkr p';m.id='m'+i;m.style.left=(cp.time/d*100)+'%';tk.appendChild(m);});
+}
+function umkr(i,done){const m=document.getElementById('m'+i);if(m)m.className='mkr '+(done?'d':'p');}
+
+function showQ(i){
+  cqi=i;sel=null;cfm=false;
+  const q=cps[i];
+  document.getElementById('qq').textContent=q.q;
+  const ol=document.getElementById('ol');ol.innerHTML='';
+  const ls=['a','b','c','d'];
+  q.opts.forEach((o,j)=>{
+    const b=document.createElement('button');
+    b.className='ob';
+    b.innerHTML=`<span class="ol2">${ls[j]}</span><span>${o}</span>`;
+    b.onclick=()=>sopt(j);
+    ol.appendChild(b);
+  });
+  document.getElementById('fb').className='fb';
+  document.getElementById('bcnf').disabled=true;
+  document.getElementById('bcnt').textContent='Confirmar respuesta';
+  document.getElementById('qol').classList.add('v');
+  pol(true);
+}
+
+function sopt(i){if(cfm)return;sel=i;document.querySelectorAll('.ob').forEach((b,j)=>{b.classList.toggle('sel',j===i);});document.getElementById('bcnf').disabled=false;}
+
+function hconf(){
+  if(cfm){closeQ();return;}
+  if(sel===null)return;
+  cfm=true;
+  const q=cps[cqi],ok=sel===q.ok;
+  document.querySelectorAll('.ob').forEach((b,i)=>{b.disabled=true;b.classList.remove('sel');if(i===q.ok)b.classList.add('cor');if(i===sel&&!ok)b.classList.add('wrg');});
+  const fb=document.getElementById('fb');
+  document.getElementById('fbi').innerHTML=ok?'<path d="M12 2a10 10 0 110 20A10 10 0 0112 2zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l5.09-5.08L17.5 10l-6.5 6.5z"/>':'<path d="M12 2a10 10 0 110 20A10 10 0 0112 2zm1 13h-2v2h2v-2zm0-8h-2v6h2V7z"/>';
+  document.getElementById('fbt').textContent=ok?'¡Muy bien! Continuemos con el video.':'Respuesta incorrecta, pero puedes continuar.';
+  fb.className='fb sh '+(ok?'ok':'ng');
+  ok?nC++:nW++;nA++;ust();umkr(cqi,true);
+  document.getElementById('bcnt').textContent='Continuar video';
+  document.getElementById('bcnf').disabled=false;
+}
+
+function closeQ(){document.getElementById('qol').classList.remove('v');cqi=null;sel=null;cfm=false;if(vid.src)vid.play();}
+function showCpl(){document.getElementById('fsco').textContent=nC+'/'+QS.length;document.getElementById('cpl').classList.add('sh');}
+function rst(){document.getElementById('cpl').classList.remove('sh');vid.currentTime=0;rcps();vid.play();}
+function ust(){document.getElementById('sa').textContent=nA;document.getElementById('sc2').textContent=nC;document.getElementById('sw').textContent=nW;}
+</script>
